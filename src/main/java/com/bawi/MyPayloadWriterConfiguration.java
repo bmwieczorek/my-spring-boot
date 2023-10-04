@@ -19,13 +19,14 @@ public class MyPayloadWriterConfiguration {
     }
 
     public void setType(String type) {
+        LOGGER.info("Changing type to: {}", type);
         this.type = type;
     }
 
     @Bean
     public MyPayloadWriterProvider myPayloadWriterProvider(ApplicationContext applicationContext) {
-        String beanName = type + MyPayloadWriter.class.getSimpleName();
         return () -> {
+            String beanName = type + MyPayloadWriter.class.getSimpleName();
             if (!applicationContext.containsBean(beanName)) {
                 throw new IllegalArgumentException("Unable to create bean with name " + beanName + " of type " + MyPayloadWriter.class +
                         "Bean name needs to match method name annotated with @Bean creating bean of type " +  MyPayloadWriter.class);
