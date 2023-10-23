@@ -65,12 +65,36 @@ public class MyPostController {
 
     @RequestMapping(path = "postc")
     public ResponseEntity<String> postc(HttpServletRequest request) throws IOException {
+        LOGGER.info("/postc started");
         try (ServletInputStream inputStream = request.getInputStream()){
             byte[] payload = IOUtils.toByteArray(inputStream);
             String message = getMessage(payload, getHeaders(request));
             metricsPublisher.counter(1L);
             LOGGER.info(message);
             return ResponseEntity.ok(message);
+        }
+    }
+
+    @RequestMapping(path = "postc2")
+    public ResponseEntity<String> postc2(HttpServletRequest request) {
+        LOGGER.info("/postc2 started");
+        try (ServletInputStream inputStream = request.getInputStream()){
+            byte[] payload = IOUtils.toByteArray(inputStream);
+            String message = getMessage(payload, getHeaders(request));
+            metricsPublisher.counter(1L);
+            LOGGER.info(message);
+            return ResponseEntity.ok(message);
+        }
+        // curl -i -v http://192.168.0.25:8080/postc2 --data-binary @liniatura.pdf
+        //* Connected to 192.168.0.25 (192.168.0.25) port 8080 (#0)
+        //> Expect: 100-continue
+        //* Mark bundle as not supporting multiuse
+        //HTTP/1.1 100
+        //
+        //^C
+        catch (Exception e) {
+            LOGGER.error("Failed to process", e);
+            return ResponseEntity.badRequest().body("Failed to process due " + e.getMessage());
         }
     }
 
@@ -90,7 +114,8 @@ public class MyPostController {
     }
 
     private static String getMessage(byte[] payload, Map<String, String> headers) {
-        return "Received " + payload.length + " byte(s) payload: " + new String(payload) +
+//        return "Received " + payload.length + " byte(s) payload: " + new String(payload) +
+        return "Received " + payload.length + " byte(s) payload" +
                 " with " + headers.size() + " header(s): " + headers;
     }
 }
