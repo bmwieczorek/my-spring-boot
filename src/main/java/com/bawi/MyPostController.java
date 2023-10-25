@@ -5,7 +5,10 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -21,19 +24,19 @@ public class MyPostController {
 
     private final MyService myService;
     private final MyPayloadWriterProvider myPayloadWriterProvider;
-    private final MetricsPublisher metricsPublisher;
+    private final MyMetricsPublisher myMetricsPublisher;
 
-    public MyPostController(MyService myService, MyPayloadWriterProvider myPayloadWriterProvider, MetricsPublisher metricsPublisher) {
+    public MyPostController(MyService myService, MyPayloadWriterProvider myPayloadWriterProvider, MyMetricsPublisher myMetricsPublisher) {
         this.myService = myService;
         this.myPayloadWriterProvider = myPayloadWriterProvider;
-        this.metricsPublisher = metricsPublisher;
+        this.myMetricsPublisher = myMetricsPublisher;
     }
 
     @RequestMapping(path = "post")
     public ResponseEntity<String> post(@RequestBody byte[] payload, @RequestHeader Map<String, String> headers) {
-        metricsPublisher.counter(1L);
+        myMetricsPublisher.counter(1L);
         String message = getMessage(payload, headers);
-        metricsPublisher.counter(1L);
+        myMetricsPublisher.counter(1L);
         LOGGER.info(message);
         return ResponseEntity.ok(message);
     }
@@ -46,7 +49,7 @@ public class MyPostController {
             message = myService.update(message);
             MyPayloadWriter myPayloadWriter = myPayloadWriterProvider.get();
             myPayloadWriter.write(payload, getHeaders(request));
-            metricsPublisher.counter(1L);
+            myMetricsPublisher.counter(1L);
             LOGGER.info(message);
             return ResponseEntity.ok(message);
         }
@@ -57,7 +60,7 @@ public class MyPostController {
         try (ServletInputStream inputStream = request.getInputStream()){
             byte[] payload = ByteStreams.toByteArray(inputStream); //
             String message = getMessage(payload, getHeaders(request));
-            metricsPublisher.counter(1L);
+            myMetricsPublisher.counter(1L);
             LOGGER.info(message);
             return ResponseEntity.ok(message);
         }
@@ -69,7 +72,7 @@ public class MyPostController {
         try (ServletInputStream inputStream = request.getInputStream()){
             byte[] payload = IOUtils.toByteArray(inputStream);
             String message = getMessage(payload, getHeaders(request));
-            metricsPublisher.counter(1L);
+            myMetricsPublisher.counter(1L);
             LOGGER.info(message);
             return ResponseEntity.ok(message);
         }
@@ -81,7 +84,7 @@ public class MyPostController {
         try (ServletInputStream inputStream = request.getInputStream()){
             byte[] payload = IOUtils.toByteArray(inputStream);
             String message = getMessage(payload, getHeaders(request));
-            metricsPublisher.counter(1L);
+            myMetricsPublisher.counter(1L);
             LOGGER.info(message);
             return ResponseEntity.ok(message);
         }
@@ -114,8 +117,8 @@ public class MyPostController {
     }
 
     private static String getMessage(byte[] payload, Map<String, String> headers) {
-//        return "Received " + payload.length + " byte(s) payload: " + new String(payload) +
-        return "Received " + payload.length + " byte(s) payload" +
+        return "Received " + payload.length + " byte(s) payload: " + new String(payload) +
+//        return "Received " + payload.length + " byte(s) payload" +
                 " with " + headers.size() + " header(s): " + headers;
     }
 }
