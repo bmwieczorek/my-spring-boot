@@ -7,7 +7,6 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -30,7 +29,7 @@ import static org.mockito.Mockito.verify;
 public class SpringBootPostControllerTest {
 
     @MockBean
-    MetricsPublisher metricsPublisher; // optional
+    MyMetricsPublisher myMetricsPublisher; // optional
 
     @Autowired
     TestRestTemplate restTemplate;
@@ -42,14 +41,14 @@ public class SpringBootPostControllerTest {
             "'/postg',  'application/x-www-form-urlencoded'",
             "'/postc',  'application/x-www-form-urlencoded'",
     })
-//    @EnabledOnOs({OS.WINDOWS, OS.MAC}) // optional
+    @EnabledOnOs({OS.WINDOWS, OS.MAC}) // optional
     public void testPost(String path, String contentType) {
         String body = "A A";
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>(Map.of("Content-Type", List.of(contentType)));
         ArgumentCaptor<Long> counterCaptor = ArgumentCaptor.forClass(Long.class);
 
         ResponseEntity<String> response = restTemplate.postForEntity(path, new HttpEntity<>(body, headers), String.class);
-        verify(metricsPublisher).counter(counterCaptor.capture());
+        verify(myMetricsPublisher).counter(counterCaptor.capture());
 
         org.junit.jupiter.api.Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         MatcherAssert.assertThat(response.getBody(), CoreMatchers.containsString("A A"));

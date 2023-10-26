@@ -16,6 +16,7 @@ public class MyApplication {
     @Configuration
     public static class HttpTraceActuatorConfiguration {
 
+        // requires org.springframework.boot:spring-boot-starter-actuator
         @Bean
         public HttpTraceRepository httpTraceRepository() {
             return new InMemoryHttpTraceRepository();
