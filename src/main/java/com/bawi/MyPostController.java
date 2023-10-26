@@ -117,8 +117,11 @@ public class MyPostController {
     }
 
     private static String getMessage(byte[] payload, Map<String, String> headers) {
-        return "Received " + payload.length + " byte(s) payload: " + new String(payload) +
-//        return "Received " + payload.length + " byte(s) payload" +
+        return "Received " + payload.length + " byte(s) payload " + getPayloadAsStringIfBelow10Chars(payload) +
                 " with " + headers.size() + " header(s): " + headers;
+    }
+
+    private static String getPayloadAsStringIfBelow10Chars(byte[] payload) {
+        return payload.length < 10 ? new String(payload) : "";
     }
 }
