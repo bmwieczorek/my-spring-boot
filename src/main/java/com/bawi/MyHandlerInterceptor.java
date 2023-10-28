@@ -9,6 +9,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static com.bawi.MyRequestUtils.requestAndResponseInfoWithoutPayload;
 import static com.bawi.MyRequestUtils.requestInfoWithoutPayload;
 
 @Component
@@ -28,10 +29,7 @@ public class MyHandlerInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler, Exception ex) {
         long startTime = (long) request.getAttribute(START_TIME);
-        long endTime = System.currentTimeMillis();
-        long timeTaken = endTime - startTime;
-        LOGGER.info("afterCompletion: took " + timeTaken + " ms, responseStatus: " + response.getStatus() + ", "
-                + requestInfoWithoutPayload(request) + ", exception: " + ex);
+        LOGGER.info("afterCompletion: " + requestAndResponseInfoWithoutPayload(request, response, startTime));
     }
 
 }

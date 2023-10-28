@@ -14,9 +14,9 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import static com.bawi.MyRequestUtils.*;
 
 @RestController
 public class MyPostController {
@@ -35,7 +35,7 @@ public class MyPostController {
     @RequestMapping(path = "post")
     public ResponseEntity<String> post(@RequestBody byte[] payload, @RequestHeader Map<String, String> headers) {
         myMetricsPublisher.counter(1L);
-        String message = getMessage(payload, headers);
+        String message = getRequestInfoWithPayload(payload, headers);
         myMetricsPublisher.counter(1L);
         LOGGER.info(message);
         return ResponseEntity.ok(message);
@@ -45,7 +45,7 @@ public class MyPostController {
     public ResponseEntity<String> post2(HttpServletRequest request) throws IOException {
         try (ServletInputStream inputStream = request.getInputStream()){
             byte[] payload = toByteArray(inputStream);
-            String message = getMessage(payload, getHeaders(request));
+            String message = getRequestInfoWithPayload(payload, getHeaders(request));
             message = myService.update(message);
             MyPayloadWriter myPayloadWriter = myPayloadWriterProvider.get();
             myPayloadWriter.write(payload, getHeaders(request));
@@ -59,7 +59,7 @@ public class MyPostController {
     public ResponseEntity<String> postg(HttpServletRequest request) throws IOException {
         try (ServletInputStream inputStream = request.getInputStream()){
             byte[] payload = ByteStreams.toByteArray(inputStream); //
-            String message = getMessage(payload, getHeaders(request));
+            String message = getRequestInfoWithPayload(payload, getHeaders(request));
             myMetricsPublisher.counter(1L);
             LOGGER.info(message);
             return ResponseEntity.ok(message);
@@ -71,7 +71,7 @@ public class MyPostController {
         LOGGER.info("/postc started");
         try (ServletInputStream inputStream = request.getInputStream()){
             byte[] payload = IOUtils.toByteArray(inputStream);
-            String message = getMessage(payload, getHeaders(request));
+            String message = getRequestInfoWithPayload(payload, getHeaders(request));
             myMetricsPublisher.counter(1L);
             LOGGER.info(message);
             return ResponseEntity.ok(message);
@@ -83,7 +83,7 @@ public class MyPostController {
         LOGGER.info("/postc2 started");
         try (ServletInputStream inputStream = request.getInputStream()){
             byte[] payload = IOUtils.toByteArray(inputStream);
-            String message = getMessage(payload, getHeaders(request));
+            String message = getRequestInfoWithPayload(payload, getHeaders(request));
             myMetricsPublisher.counter(1L);
             LOGGER.info(message);
             return ResponseEntity.ok(message);
@@ -97,6 +97,7 @@ public class MyPostController {
         //^C
         catch (Exception e) {
             LOGGER.error("Failed to process", e);
+            setExceptionAsRequestAttribute(request, e);
             return ResponseEntity.badRequest().body("Failed to process due " + e.getMessage());
         }
     }
@@ -110,18 +111,5 @@ public class MyPostController {
         }
         outputStream.flush();
         return outputStream.toByteArray();
-    }
-
-    private static Map<String, String> getHeaders(HttpServletRequest req) {
-        return Collections.list(req.getHeaderNames()).stream().collect(Collectors.toMap(h -> h, req::getHeader));
-    }
-
-    private static String getMessage(byte[] payload, Map<String, String> headers) {
-        return "Received " + payload.length + " byte(s) payload " + getPayloadAsStringIfBelow10Chars(payload) +
-                " with " + headers.size() + " header(s): " + headers;
-    }
-
-    private static String getPayloadAsStringIfBelow10Chars(byte[] payload) {
-        return payload.length < 10 ? new String(payload) : "";
     }
 }

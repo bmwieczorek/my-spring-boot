@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static com.bawi.MyRequestUtils.requestInfoWithoutPayload;
+import static com.bawi.MyRequestUtils.*;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -25,16 +25,13 @@ public class MyOncePerRequestFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(MyOncePerRequestFilter.class);
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request,  @NonNull HttpServletResponse response,
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         long startTime = System.currentTimeMillis();
-        LOGGER.info("doFilterInternal before filterChain: " + requestInfoWithoutPayload(request));
+        LOGGER.info("doFilterInternal before: " + requestInfoWithoutPayload(request));
 
         filterChain.doFilter(request, response);
 
-        long endTime = System.currentTimeMillis();
-        long timeTaken = endTime - startTime;
-        LOGGER.info("doFilterInternal after filterChain: took " + timeTaken + " ms, responseStatus: " + response.getStatus() +
-                ", " + requestInfoWithoutPayload(request));
+        LOGGER.info("doFilterInternal after: " + requestAndResponseInfoWithoutPayload(request, response, startTime));
     }
 }

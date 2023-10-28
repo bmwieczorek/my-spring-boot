@@ -6,7 +6,7 @@
       "sourceType": "com.bawi.MyServiceConfiguration"
     },
     {
-      "name": "my-payload.writer",
+      "name": "my-payload-writer",
       "type": "com.bawi.MyPayloadWriterConfiguration",
       "sourceType": "com.bawi.MyPayloadWriterConfiguration"
     }
@@ -19,15 +19,25 @@
       "defaultValue": "stub"
     },
     {
-      "name": "my-payload.writer.type",
+      "name": "my-payload-writer.type",
       "type": "java.lang.String",
       "sourceType": "com.bawi.MyPayloadWriterConfiguration",
       "defaultValue": "stub"
     },
     {
-      "name": "my-payload.writer.path",
+      "name": "my-payload-writer.path",
       "type": "java.lang.String",
       "sourceType": "com.bawi.MyPayloadWriterConfiguration"
+    },
+    {
+      "name": "my-simple-controller-a.my-payload-writer.path",
+      "type": "java.lang.String",
+      "sourceType": "com.bawi.MySimpleControllerA.MyConfiguration"
+    },
+    {
+      "name": "my-simple-controller-b.my-payload-writer.path",
+      "type": "java.lang.String",
+      "sourceType": "com.bawi.MySimpleControllerB.MyConfiguration"
     }
   ],
   "hints": []

@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties("my-payload.writer")
+@ConfigurationProperties("my-payload-writer")
 public class MyPayloadWriterConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(MyPayloadWriterConfiguration.class);
     private String type = "stub";
@@ -42,7 +42,7 @@ public class MyPayloadWriterConfiguration {
     }
 
     @Bean
-    MyPayloadWriter realMyPayloadWriter(@Value("${my-payload.writer.path}") String path) {
+    MyPayloadWriter realMyPayloadWriter(@Value("${my-payload-writer.path}") String path) {
         LOGGER.info("Created real MyPayloadWriter for " + path);
         return (payload, headers) -> LOGGER.info("Writing payload and headers to " + path);
     }

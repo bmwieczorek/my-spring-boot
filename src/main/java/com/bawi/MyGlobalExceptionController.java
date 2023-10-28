@@ -14,6 +14,7 @@ import org.springframework.web.context.request.WebRequest;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static com.bawi.MyRequestUtils.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
 
@@ -21,7 +22,6 @@ import static org.springframework.http.HttpStatus.METHOD_NOT_ALLOWED;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class MyGlobalExceptionController {
     private static final Logger LOGGER = LoggerFactory.getLogger(MyGlobalExceptionController.class);
-
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<String> handleAll(HttpRequestMethodNotSupportedException e, WebRequest request) {
@@ -33,14 +33,16 @@ public class MyGlobalExceptionController {
         return getStringResponseEntity(request, e, BAD_REQUEST, "ERROR, Request processing failed");
     }
 
-    private ResponseEntity<String> getStringResponseEntity(WebRequest request, Exception e, HttpStatus httpStatus, String message) {
-        String requestInfoWithoutPayload = "";
-        if (request instanceof ServletWebRequest servletWebRequest) {
-            HttpServletRequest httpServletRequest = servletWebRequest.getRequest();
-            requestInfoWithoutPayload = MyRequestUtils.requestInfoWithoutPayload(httpServletRequest);
+    private ResponseEntity<String> getStringResponseEntity(WebRequest webRequest, Exception e, HttpStatus httpStatus, String message) {
+        String errorMessage = MyGlobalExceptionController.class.getSimpleName() + ": " + message + " due to " + e;
+        if (webRequest instanceof ServletWebRequest servletWebRequest) {
+            HttpServletRequest request = servletWebRequest.getRequest();
+            setExceptionAsRequestAttribute(request, e);
+            LOGGER.error(errorMessage + " for " + requestInfoWithoutPayload(request), e);
+            return ResponseEntity.status(httpStatus).body(message);
         }
 
-        LOGGER.error("GlobalExceptionController: " + message + " due to " + e.getMessage() + " for " + requestInfoWithoutPayload, e);
+        LOGGER.error(errorMessage, e);
         return ResponseEntity.status(httpStatus).body(message);
     }
 }
